@@ -4,7 +4,8 @@ async def main():
     client = LLMClient()
     messages = [
         {"role": "user", "content": "What's up bro?"},]
-    await client.chat_completion(messages, stream=False)
+    async for event in client.chat_completion(messages, True):
+        print(event)
     print("Done")
     
     
