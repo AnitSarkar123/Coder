@@ -1,7 +1,7 @@
 from openai import APIConnectionError, APIError, AsyncOpenAI, RateLimitError
 from typing import Any,AsyncGenerator
 import asyncio
-from client.response import EventType, StreamEvent, TextDelta, TokenUsage
+from client.response import StreamEventType, StreamEvent, TextDelta, TokenUsage
 class LLMClient:
     def __init__(self) -> None:
         self._client: AsyncOpenAI | None = None
@@ -12,7 +12,7 @@ class LLMClient:
         if self._client is None:
             self._client = AsyncOpenAI(
                 api_key="",  # "sk-or-v1-20c17f48aafd0338a3b88"
-                base_url="https://openrouter.ai/api/v1",  # "https://openrouter.ai/api/v1"
+                base_url="https://router.bynara.id/v1",  # "https://openrouter.ai/api/v1"
             )
         return self._client
 
@@ -30,7 +30,7 @@ class LLMClient:
             try:
                 Client =self.get_client()
                 kwargs = {
-                    "model": "inclusionai/ling-3.0-flash-vl:free",
+                    "model": "ling-3.0-flash-fin-free",
                     "messages": message,
                     "stream": stream,
                 }
@@ -46,7 +46,7 @@ class LLMClient:
                     await asyncio.sleep(wait_time)
                 else:
                     yield StreamEvent(
-                        type=EventType.ERROR,
+                        type=StreamEventType.ERROR,
                         error=f"Rate limit exceeded after {self._max_retries} attempts: {str(e)}",
                     )
             except APIConnectionError as e:
@@ -55,13 +55,13 @@ class LLMClient:
                     await asyncio.sleep(wait_time)
                 else:
                     yield StreamEvent(
-                        type=EventType.ERROR,
+                        type=StreamEventType.ERROR,
                         error=f"Connection error: {e}",
                     )
                     return
             except APIError as e:
                 yield StreamEvent(
-                    type=EventType.ERROR,
+                    type=StreamEventType.ERROR,
                     error=f"API error: {e}",
                 )
                 return
@@ -85,7 +85,7 @@ class LLMClient:
                     prompt_tokens=chunk.usage.prompt_tokens,
                     completion_tokens=chunk.usage.completion_tokens,
                     total_tokens=chunk.usage.total_tokens,
-                    cached_tokens=chunk.usage.prompt_tokens_details.cached_tokens,
+                    cached_tokens=(getattr(getattr(chunk.usage, "prompt_tokens_details", None), "cached_tokens", 0) or 0),
                 )
 
             if not chunk.choices:
@@ -97,13 +97,14 @@ class LLMClient:
             if choice.finish_reason:
                 finish_reason = choice.finish_reason
 
-            if delta.content:
+            if delta and delta.content:
                 yield StreamEvent(
-                    type=EventType.TEXT_DELTA,
+                    type=StreamEventType.TEXT_DELTA,
                     text_delta=TextDelta(delta.content),
                 )
-            yield StreamEvent(
-            type=EventType.MESSAGE_COMPLETE,
+
+        yield StreamEvent(
+            type=StreamEventType.MESSAGE_COMPLETE,
             finish_reason=finish_reason,
             usage=usage,
         )
@@ -129,11 +130,11 @@ class LLMClient:
                 prompt_tokens=response.usage.prompt_tokens,
                 completion_tokens=response.usage.completion_tokens,
                 total_tokens=response.usage.total_tokens,
-                cached_tokens=response.usage.prompt_tokens_details.cached_tokens,
+                cached_tokens=(getattr(getattr(response.usage, "prompt_tokens_details", None), "cached_tokens", 0) or 0),
             )
 
         return StreamEvent(
-            type=EventType.MESSAGE_COMPLETE,
+            type=StreamEventType.MESSAGE_COMPLETE,
             text_delta=text_delta,
             finish_reason=choice.finish_reason,
             usage=usage,
