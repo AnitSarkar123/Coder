@@ -51,7 +51,7 @@ class ContextManager:
                 content or "",
                 self._model_name,
             ),
-            
+            tool_calls=tool_calls or [],
         )
 
         self._messages.append(item)
