@@ -11,6 +11,7 @@ from rich.prompt import Prompt
 from rich.console import Group
 from rich.syntax import Syntax
 from rich.markdown import Markdown
+from config.config import Config
 from tools.base import ToolConfirmation
 from utils.paths import display_path_rel_to_cwd
 import re
@@ -58,12 +59,14 @@ def get_console() -> Console:
 class TUI:
     def __init__(
         self,
+        config:Config,
         console: Console | None = None,
     ) -> None:
         self.console = console or get_console()
         self._assistant_stream_open = False
         self._tool_args_by_call_id: dict[str, dict[str, Any]] = {}
-        self.pwd = Path.cwd()
+        self.config = config
+        self.cwd = self.config.cwd
         
 
     def stream_assistant_delta(self, content: str) -> None:
@@ -540,3 +543,44 @@ class TUI:
         )
         self.console.print()
         self.console.print(panel)
+    
+    def handle_confirmation(self, confirmation: ToolConfirmation) -> bool:
+        output = [
+            Text(confirmation.tool_name, style="tool"),
+            Text(confirmation.description, style="code"),
+        ]
+
+        if confirmation.command:
+            output.append(Text(f"$ {confirmation.command}", style="warning"))
+
+        if confirmation.diff:
+            diff_text = confirmation.diff.to_diff()
+            output.append(
+                Syntax(
+                    diff_text,
+                    "diff",
+                    theme="monokai",
+                    word_wrap=True,
+                )
+            )
+
+        self.console.print()
+        self.console.print(
+            Panel(
+                Group(*output),
+                title=Text("Approval required", style="warning"),
+                title_align="left",
+                border_style="warning",
+                box=box.ROUNDED,
+                padding=(1, 2),
+            )
+        )
+
+        response = Prompt.ask(
+            "\nApprove?", choices=["y", "n", "yes", "no"], default="n"
+        )
+
+        return response.lower() in {"y", "yes"}
+
+    def show_help(self) -> None:
+        help_text = ""

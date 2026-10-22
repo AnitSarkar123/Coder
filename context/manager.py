@@ -3,7 +3,7 @@ from typing import Any
 
 from prompts.system import get_system_prompt
 from dataclasses import dataclass, field
-
+from config.config import Config
 from utils.text import count_tokens
 @dataclass
 class MessageItem:
@@ -26,10 +26,11 @@ class MessageItem:
         return result
     
 class ContextManager:
-    def __init__(self)->None:
-        self._system_prompt = get_system_prompt()
+    def __init__(self,config: Config)->None:
+        self._system_prompt = get_system_prompt(config)
         self._messages :list[MessageItem]=[]
-        self._model_name="agnes-2.5-flash"
+        self.config =config
+        self._model_name=self.config.model_name
     def add_user_message(self,content:str)->None:
         item=MessageItem(
             role="user",

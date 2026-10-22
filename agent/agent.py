@@ -2,22 +2,21 @@ from __future__ import annotations
 # from pyexpat.errors import messages
 from typing import AsyncGenerator
 from agent.events import AgentEvent, AgentEventType
+from agent.session import Session
+from config.config import Config
 
-from client.llm_client import LLMClient
 from client.response import StreamEventType, StreamEvent, TextDelta, TokenUsage, parse_tool_call_arguments, ToolCall, ToolCallDelta,ToolResultMessage
-from context.manager import ContextManager
-from tools.registry import create_default_registry
+
 
 
 class Agent:
-    def __init__(self):
-        self.client = LLMClient()
-        self.context_manager = ContextManager()
-        self.tool_registry = create_default_registry()
+    def __init__(self,config:Config):
+        self.config = config
+        self.session: Session | None = Session(self.config)
         
     async def run(self,message:str):
         yield AgentEvent.agent_start(message)
-        self.context_manager.add_user_message(message)
+        self.session.context_manager.add_user_message(message)
         final_response: str | None = None
         async for event in self._agentic_loop(message):
             yield event

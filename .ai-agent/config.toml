@@ -1,0 +1,14 @@
+[model]
+name="laguna-s-2.1"
+temperature = 1.0
+context_window = 256000
+
+[shell_environment]
+ignore_default_excludes = false
+exclude_patterns = ["*KEY*", "*TOKEN*", "*SECRET*"]
+set_vars = {}
+
+hooks_enabled = false
+max_turns = 100
+max_tool_output_tokens = 40000
+debug = false

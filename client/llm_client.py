@@ -2,17 +2,18 @@ from openai import APIConnectionError, APIError, AsyncOpenAI, RateLimitError
 from typing import Any,AsyncGenerator
 import asyncio
 from client.response import StreamEventType, StreamEvent, TextDelta, TokenUsage, parse_tool_call_arguments,ToolCall,ToolCallDelta
+from config.config import Config
 class LLMClient:
-    def __init__(self) -> None:
+    def __init__(self,config: Config) -> None:
         self._client: AsyncOpenAI | None = None
         self._max_retries: int = 3
-        
+        self._config = config
 
     def get_client(self) -> AsyncOpenAI:
         if self._client is None:
             self._client = AsyncOpenAI(
-                api_key="",  # "sk-or-v1-20c17f48aafd0338a3b88"
-                base_url="https://router.bynara.id/v1",  # "https://openrouter.ai/api/v1"
+                api_key=self._config.api_key,
+                base_url=self._config.base_url,
             )
         return self._client
 
@@ -49,7 +50,7 @@ class LLMClient:
         client = self.get_client()
 
         kwargs = {
-            "model": "agnes-2.5-flash",
+            "model": self.config.model_name,
             "messages": messages,
             "stream": stream,
         }
