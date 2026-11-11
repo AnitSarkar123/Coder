@@ -86,6 +86,7 @@ class TUI:
             "read_file": ["path", "offset", "limit"],
             "write_file": ["path","create_directories", "content"],
             "edit": ["path", "replace_all", "old_string", "new_string"],
+            "shell": ["command", "timeout", "cwd"],
             
         }
 

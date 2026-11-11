@@ -50,7 +50,7 @@ class LLMClient:
         client = self.get_client()
 
         kwargs = {
-            "model": self.config.model_name,
+                    "model": self.config.model_name,
             "messages": messages,
             "stream": stream,
         }

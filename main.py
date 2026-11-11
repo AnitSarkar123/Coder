@@ -25,36 +25,36 @@ class CLI:
             return await self._process_message(message)
 
     async def run_interactive(self) -> str | None:
-        self.tui.print_welcome(
-            "AI Agent",
-            lines=[
-                f"model: {self.config.model_name}",
-                f"cwd: {self.config.cwd}",
-                "commands: /help /config /approval /model /exit",
-            ],
-        )
-        async with Agent(self.config) as agent:
-            self.agent = agent
+                self.tui.print_welcome(
+                    "AI Agent",
+                    lines=[
+                        f"model: {self.config.model_name}",
+                        f"cwd: {self.config.cwd}",
+                        "commands: /help /config /approval /model /exit",
+                    ],
+                )
+                async with Agent(self.config) as agent:
+                    self.agent = agent
 
-            while True:
-                try:
-                    user_input = console.input("\n[user]>[/user] ").strip()
-                    if not user_input:
-                        continue
+                while True:
+                    try:
+                        user_input = console.input("\n[user]>[/user] ").strip()
+                        if not user_input:
+                            continue
 
-                    if user_input.startswith("/"):
-                        should_continue = await self._handle_command(user_input)
-                        if not should_continue:
-                            break
-                        continue
+                        if user_input.startswith("/"):
+                            should_continue = await self._handle_command(user_input)
+                            if not should_continue:
+                                break
+                            continue
 
-                    await self._process_message(user_input)
-                except KeyboardInterrupt:
-                    console.print("\n[dim]Use /exit to quit[/dim]")
-                except EOFError:
-                    break
+                        await self._process_message(user_input)
+                    except KeyboardInterrupt:
+                        console.print("\n[dim]Use /exit to quit[/dim]")
+                    except EOFError:
+                        break
 
-            console.print("\n[dim]Goodbye![/dim]")
+                console.print("\n[dim]Goodbye![/dim]")
     def _get_tool_kind(self, tool_name: str) -> str | None:
             tool_kind = None
             tool = self.agent.session.tool_registry.get(tool_name)

@@ -12,6 +12,7 @@ from client.response import StreamEventType, StreamEvent, TextDelta, TokenUsage,
 class Agent:
     def __init__(self,config:Config):
         self.config = config
+        # self._config = config
         self.session: Session | None = Session(self.config)
         
     async def run(self,message:str):
@@ -21,7 +22,7 @@ class Agent:
         async for event in self._agentic_loop(message):
             yield event
             if event.type == AgentEventType.TEXT_COMPLETE:
-                final_response = event.data.get("content")
+                    final_response = event.data.get("content")
                 
         yield AgentEvent.agent_end(response=final_response)
     async def _agentic_loop(self) -> AsyncGenerator[AgentEvent, None]:
@@ -32,15 +33,15 @@ class Agent:
             response_text = ""
 
             # check for context overflow
-            if self.session.context_manager.needs_compression():
-                summary, usage = await self.session.chat_compactor.compress(
-                    self.session.context_manager
-                )
+            # if self.session.context_manager.needs_compression():
+            #     summary, usage = await self.session.chat_compactor.compress(
+            #         self.session.context_manager
+            #     )
 
-                if summary:
-                    self.session.context_manager.replace_with_summary(summary)
-                    self.session.context_manager.set_latest_usage(usage)
-                    self.session.context_manager.add_usage(usage)
+            #     if summary:
+            #         self.session.context_manager.replace_with_summary(summary)
+            #         self.session.context_manager.set_latest_usage(usage)
+            #         self.session.context_manager.add_usage(usage)
 
             tool_schemas = self.session.tool_registry.get_schemas()
 
@@ -91,13 +92,13 @@ class Agent:
                     text=response_text,
                 )
 
-            if not tool_calls:
-                if usage:
-                    self.session.context_manager.set_latest_usage(usage)
-                    self.session.context_manager.add_usage(usage)
+            # if not tool_calls:
+            #     if usage:
+            #         self.session.context_manager.set_latest_usage(usage)
+            #         self.session.context_manager.add_usage(usage)
 
-                self.session.context_manager.prune_tool_outputs()
-                return
+            #     self.session.context_manager.prune_tool_outputs()
+            #     return
 
             tool_call_results: list[ToolResultMessage] = []
 

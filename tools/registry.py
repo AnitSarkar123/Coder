@@ -1,6 +1,7 @@
 from typing import Any
 from zipfile import Path
 
+from config.config import Config
 from tools.base import Tool, ToolInvocation, ToolResult
 import logging
 logger = logging.getLogger(__name__)
@@ -67,10 +68,10 @@ class ToolRegistry:
             )
         return result
 
-def create_default_registry() -> ToolRegistry:
+def create_default_registry(config: Config) -> ToolRegistry:
     registry = ToolRegistry()
     for tool_class in get_all_builtin_tools():
-        tool_instance = tool_class()
+        tool_instance = tool_class(config=config)
         registry.register(tool_instance)
     
     return registry

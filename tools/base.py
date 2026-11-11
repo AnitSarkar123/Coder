@@ -6,6 +6,8 @@ from zipfile import Path
 from pydantic import BaseModel,ValidationError
 from dataclasses import dataclass,field
 from pydantic.json_schema import model_json_schema
+
+from config.config import Config
 class ToolKind(str,Enum):
     READ ="read"
     WRITE="write"
@@ -103,8 +105,8 @@ class Tool(abc.ABC):
     name:str="base_tool"
     description:str = "Base tool"
     kind:ToolKind =ToolKind.READ
-    def __init__(self)->None:
-        pass
+    def __init__(self,config:Config)->None:
+        self.config = config
     @property
     def schema(self)->dict[str,Any] | type['BaseModel']:
         raise NotImplementedError("Tool must define a schema property or class attribute")
