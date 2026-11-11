@@ -14,28 +14,27 @@ from ui.tui import TUI, get_console
 console = get_console()
 
 class CLI:
-    def __init__(self,config:Config) :
+    def __init__(self, config: Config):
         self.agent: Agent | None = None
         self.config = config
-        self.tui =TUI(config =config,console=console)
-    async def run_single(self,message:str):
+        self.tui = TUI(config=config, console=console)
+
+    async def run_single(self, message: str):
         async with Agent(self.config) as agent:
             self.agent = agent
             return await self._process_message(message)
+
     async def run_interactive(self) -> str | None:
-            self.tui.print_welcome(
-                "AI Agent",
-                lines=[
-                    f"model: {self.config.model_name}",
-                    f"cwd: {self.config.cwd}",
-                    "commands: /help /config /approval /model /exit",
-                ],
-            )
-            async with Agent(
-            self.config,
-            confirmation_callback=self.tui.handle_confirmation,
-        ) as agent:
-                self.agent = agent
+        self.tui.print_welcome(
+            "AI Agent",
+            lines=[
+                f"model: {self.config.model_name}",
+                f"cwd: {self.config.cwd}",
+                "commands: /help /config /approval /model /exit",
+            ],
+        )
+        async with Agent(self.config) as agent:
+            self.agent = agent
 
             while True:
                 try:

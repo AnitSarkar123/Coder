@@ -19,7 +19,7 @@ class Session:
     def __init__(self, config: Config):
         self.config = config
         self.client = LLMClient(config=config)
-        self.tool_registry = create_default_registry(config)
+        self.tool_registry = create_default_registry()
         self.context_manager: ContextManager | None = None
         # self.discovery_manager = ToolDiscoveryManager(
         #     self.config,
@@ -40,15 +40,7 @@ class Session:
         self.turn_count = 0
 
     async def initialize(self) -> None:
-        await self.mcp_manager.initialize()
-        self.mcp_manager.register_tools(self.tool_registry)
-
-        self.discovery_manager.discover_all()
-        self.context_manager = ContextManager(
-            config=self.config,
-            user_memory=self._load_memory(),
-            tools=self.tool_registry.get_tools(),
-        )
+        self.context_manager = ContextManager(config=self.config)
 
     def _load_memory(self) -> str | None:
         data_dir = get_data_dir()
