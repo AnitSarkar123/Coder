@@ -67,6 +67,7 @@ class TUI:
         self._tool_args_by_call_id: dict[str, dict[str, Any]] = {}
         self.config = config
         self.cwd = self.config.cwd
+        self._max_block_tokens = 2500
         
 
     def stream_assistant_delta(self, content: str) -> None:
@@ -87,6 +88,7 @@ class TUI:
             "write_file": ["path","create_directories", "content"],
             "edit": ["path", "replace_all", "old_string", "new_string"],
             "shell": ["command", "timeout", "cwd"],
+            "list_dir": ["path", "include_hidden"],
             
         }
 
@@ -301,7 +303,7 @@ class TUI:
                     output,
                     "",
                     240,
-                    # self._max_block_tokens,
+                    self._max_block_tokens,
                 )
                 blocks.append(
                     Syntax(
