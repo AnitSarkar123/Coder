@@ -90,6 +90,7 @@ class TUI:
             "shell": ["command", "timeout", "cwd"],
             "list_dir": ["path", "include_hidden"],
             "grep": ["path", "case_insensitive", "pattern"],
+            "glob": ["path", "pattern"],
         }
 
         preferred = _PREFERRED_ORDER.get(tool_name, [])
