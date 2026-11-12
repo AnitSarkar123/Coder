@@ -67,7 +67,7 @@ class TUI:
         self._tool_args_by_call_id: dict[str, dict[str, Any]] = {}
         self.config = config
         self.cwd = self.config.cwd
-        self._max_block_tokens = 2500
+        self._max_block_tokens = 25000
         
 
     def stream_assistant_delta(self, content: str) -> None:
@@ -89,7 +89,7 @@ class TUI:
             "edit": ["path", "replace_all", "old_string", "new_string"],
             "shell": ["command", "timeout", "cwd"],
             "list_dir": ["path", "include_hidden"],
-            
+            "grep": ["path", "case_insensitive", "pattern"],
         }
 
         preferred = _PREFERRED_ORDER.get(tool_name, [])
