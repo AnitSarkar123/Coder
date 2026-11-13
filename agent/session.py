@@ -20,7 +20,8 @@ class Session:
         self.config = config
         self.client = LLMClient(config=config)
         self.tool_registry = create_default_registry(config=config)
-        self.context_manager: ContextManager | None = None
+        self.context_manager =ContextManager(config=config,user_memory=self._load_memory(), tools=self.tool_registry.get_tools())
+        self.tool_registry = create_default_registry(config=config)
         # self.discovery_manager = ToolDiscoveryManager(
         #     self.config,
         #     self.tool_registry,

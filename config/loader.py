@@ -92,7 +92,8 @@ def load_config(cwd: Path | None) -> Config:
             project_config_dict = _parse_toml(project_path)
             config_dict = _merge_dicts(config_dict, project_config_dict)
         except ConfigError:
-            logger.warning(f"Skipping invalid system config: {system_path}")
+            # Ignore invalid project config
+            logger.warning(f"Skipping invalid project config: {project_path}")
 
     if "cwd" not in config_dict:
         config_dict["cwd"] = cwd
